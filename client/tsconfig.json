@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    // …
+    "jsx": "react-jsx",            // позволяет использовать JSX без ручного импорта React
+    "moduleResolution": "node",    // искать модули в node_modules
+    "esModuleInterop": true,       // для корректного импорта CommonJS
+    "allowSyntheticDefaultImports": true
+  }
+}
