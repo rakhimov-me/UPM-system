@@ -12,7 +12,3 @@ out/
 .idea/
 *.suo
 *.DS_Store
-
-# Секреты
-.env
-.env.local

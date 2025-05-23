@@ -38,7 +38,7 @@
             geometry: z.geom as GeoJSON.Geometry,
             properties: { name: z.name },
           }));
-
+          
           mapRef.current!.addSource("zones", {
             type: "geojson",
             data: {
