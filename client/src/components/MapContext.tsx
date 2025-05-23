@@ -1,5 +1,6 @@
+// client/src/components/MapContext.tsx
 import { createContext } from "react";
 import type { Map } from "maplibre-gl";
 
-// Наш контекст хранит либо Maplibre-инстанс, либо null, пока он не инициализировался
+// По умолчанию — нет карты
 export const MapContext = createContext<Map | null>(null);
