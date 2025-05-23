@@ -1,0 +1,18 @@
+# Игнорировать все node_modules
+node_modules/
+**/node_modules/
+
+# Сборка, артефакты
+dist/
+build/
+out/
+
+# Конфиги редакторов и ОС
+.vscode/
+.idea/
+*.suo
+*.DS_Store
+
+# Секреты
+.env
+.env.local
