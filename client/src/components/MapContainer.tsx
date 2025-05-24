@@ -1,7 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";
+import { MapBarRight } from "./MapBarRight";
 import "../index.css";
+
+
 
 interface Props {
   children?: React.ReactNode;
@@ -32,11 +35,12 @@ export function MapContainer({ children }: Props) {
   }, []);
 
   return (
-    <div className="map-wrapper">
-      <div ref={containerRef} className="map-container" />
+     <div className="map-wrapper">
+       <div ref={containerRef} className="map-container" />
       <MapContext.Provider value={map}>
-        {children}
-      </MapContext.Provider>
-    </div>
-  );
++        <MapBarRight />
++        {children}
++      </MapContext.Provider>
+     </div>
+   );
 }

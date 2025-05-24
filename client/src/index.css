@@ -133,3 +133,127 @@ html, body, #root {
   height: 100%;
 }
 
+
+
+
+
+
+
+/* MapBarRight */
+.map-wrapper {
+  position: relative;
+}
+
+.map-bar-right {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  bottom: 0;
+  width: 48px;        /* фиксированная ширина под иконки */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* распределяем: поиск сверху, центр – по середине, снизу – placeholder */
+  align-items: center;
+  pointer-events: none;
+  overflow: visible;  /* чтобы инпут не обрезался */
+}
+
+/* включаем клики только для дочерних элементов */
+.map-bar-right * {
+  pointer-events: auto;
+}
+
+/* === Поиск сверху === */
+.map-bar__search {
+  position: relative;
+  margin: 8px 0;
+}
+
+.search-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input {
+  position: absolute;
+  top: 0;              /* привязываем к верху контейнера */
+  right: 48px;
+  width: 0;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  opacity: 0;
+  transition: width 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.map-bar__search:hover .search-input,
+.search-input:focus {
+  width: 240px;
+  opacity: 1;
+}
+
+/* === Список подсказок === */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 48px;
+  width: 240px;
+  max-height: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.search-suggestions li {
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.search-suggestions li:hover {
+  background: #f0f0f0;
+}
+
+/* === Центр: иконки === */
+.map-bar__center {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map-bar__button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.map-bar__button:hover {
+  background: rgba(255,255,255,1);
+}
+
+/* === Placeholder снизу === */
+.map-bar__bottom {
+  width: 100%;
+  margin-bottom: 8px;
+  /* тут потом будут кнопки высот */
+}
+/* /MapBarRight */
