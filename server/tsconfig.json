@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "outDir": "dist",
     "types": ["node"],
     "moduleResolution": "node",
