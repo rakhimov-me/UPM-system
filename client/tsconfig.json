@@ -5,9 +5,11 @@
       "ES2017",
       "DOM"
     ],
-    "jsx": "react-jsx",            // позволяет использовать JSX без ручного импорта React
-    "moduleResolution": "node",    // искать модули в node_modules
-    "esModuleInterop": true,       // для корректного импорта CommonJS
+    "jsx": "react-jsx",            
+    "moduleResolution": "node",    
+    "esModuleInterop": true,     
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "include": ["src"],   
+  "exclude": ["node_modules", "build"]  
 }

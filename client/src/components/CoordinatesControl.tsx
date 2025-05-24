@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";
 
-// утилита перевода в DMS
 function toDMS(deg: number, isLat: boolean) {
   const abs = Math.abs(deg);
   const d = Math.floor(abs);
@@ -19,39 +18,15 @@ export function CoordinatesControl() {
 
   useEffect(() => {
     if (!map || !ref.current) return;
-
     const update = () => {
       const c = map.getCenter();
-      ref.current!.textContent = 
-        `${toDMS(c.lat, true)}  ${toDMS(c.lng, false)}`;
+      // Связываем обе координаты и добавляем DMS один раз в конце
+      ref.current!.textContent = `${toDMS(c.lat, true)}   ${toDMS(c.lng, false)} DMS`;
     };
-
-    // сразу отрисовать и подписаться
     update();
     map.on("move", update);
-
-    return () => {
-      map.off("move", update);
-    };
+    return () => void map.off("move", update);
   }, [map]);
 
-  return (
-   <div
-      ref={ref}
-      style={{
-      position: "absolute",
-      bottom: 20,            
-      left: "50%",           
-      transform: "translateX(-50%)", 
-      background: "rgba(0,0,0,0.5)",
-      color: "#fff",
-      padding: "4px 8px",
-      fontFamily: "monospace",
-      fontSize: 12,
-      borderRadius: 4,
-      pointerEvents: "none",
-      whiteSpace: "nowrap",  
-    }}
-    />
-  );
+  return <div ref={ref} className="coordinates-overlay" />;
 }

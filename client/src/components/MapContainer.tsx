@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";
+import "../index.css";
 
 interface Props {
   children?: React.ReactNode;
@@ -21,7 +22,6 @@ export function MapContainer({ children }: Props) {
       zoom: 10,
     });
 
-    // Когда карта загрузится — кладём её в стейт
     mapInstance.on("load", () => {
       setMap(mapInstance);
     });
@@ -31,23 +31,12 @@ export function MapContainer({ children }: Props) {
     };
   }, []);
 
-   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        overflow: "hidden",    // <-- вот эта строчка
-      }}
-    >
-      <div
-        ref={containerRef}
-        style={{ width: "100%", height: "100%" }}
-      />
+  return (
+    <div className="map-wrapper">
+      <div ref={containerRef} className="map-container" />
       <MapContext.Provider value={map}>
         {children}
       </MapContext.Provider>
     </div>
   );
 }
- 
