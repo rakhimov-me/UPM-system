@@ -6,7 +6,6 @@ import maplibregl from "maplibre-gl";
 export function TrackLayer() {
   const map = useContext(MapContext);
   const coordsRef = useRef<[number, number][]>([]);
-  const markerRef = useRef<maplibregl.Marker | null>(null);
 
   useEffect(() => {
     if (!map) return;
@@ -20,8 +19,12 @@ export function TrackLayer() {
         properties: {},
       },
     });
-    map.addLayer({ id: "track-line", type: "line", source: "track", paint: { "line-color": "#0066ff", "line-width": 3 } });
-    markerRef.current = new maplibregl.Marker({ color: "#0066ff" }).setLngLat([71.45, 51.16]).addTo(map);
+    map.addLayer({
+      id: "track-line",
+      type: "line",
+      source: "track",
+      paint: { "line-color": "#0066ff", "line-width": 3 },
+    });
 
     // Подписываемся на телеметрию
     const socket = createTelemetrySocket(pt => {
@@ -32,7 +35,6 @@ export function TrackLayer() {
         geometry: { type: "LineString", coordinates: coordsRef.current },
         properties: {},
       });
-      markerRef.current!.setLngLat([pt.lon, pt.lat]);
     });
 
     return () => {
