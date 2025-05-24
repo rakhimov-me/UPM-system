@@ -1,5 +1,4 @@
-/* client/src/index.css */
-
+/* Общие стили */
 html, body, #root {
   margin: 0;
   padding: 0;
@@ -7,19 +6,22 @@ html, body, #root {
   font-family: "Inter", sans-serif;
 }
 
+/* Контейнер приложения */
 .app {
   display: flex;
-  height: 100%;         /* занять 100% высоты окна */
+  height: 100%;
+  overflow: hidden;
 }
 
 .app__content {
   position: relative;
   flex: 1;
-  margin-left: 100px;   /* ширина sidebar */
+  margin-left: 100px; /* резервируем место под sidebar */
   height: 100%;
+  overflow: hidden;
 }
 
-/* обёртка под карту */
+/* Обёртка под карту */
 .map-wrapper {
   position: absolute;
   top: 0;
@@ -28,14 +30,15 @@ html, body, #root {
   bottom: 0;
 }
 
-/* сам контейнер карты */
+/* Сам контейнер карты */
 .map-container {
   width: 100%;
   height: 100%;
 }
 
-/* client/src/components/Sidebar.css */
-
+/* ============================
+   Sidebar (левая панель-иконки)
+   ============================ */
 .sidebar {
   position: fixed;
   top: 0;
@@ -52,12 +55,12 @@ html, body, #root {
 
 .sidebar__list {
   flex: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0;
-  margin: 0;
-  list-style: none;
 }
 
 .sidebar__item {
@@ -101,8 +104,115 @@ html, body, #root {
   text-align: center;
 }
 
+/* ============================
+   Drawer (выезжающие панели)
+   ============================ */
+.drawer {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 320px;
+  height: 100vh;
+  background-color: #ffffff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  transition: left 0.3s ease;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+}
 
-/* client/src/components/CoordinatesControl.css */
+.drawer.open {
+  left: 100px;
+}
+
+.drawer__header {
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.drawer__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.drawer__header button {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.drawer__body h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.drawer__body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+
+.drawer__body li {
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.drawer__body b {
+  font-weight: 600;
+}
+
+.drawer__body form {
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer__body label {
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.drawer__body input {
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.drawer__body button {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.drawer__body button:hover {
+  background-color: #0056b3;
+}
+
+/* ============================
+   Coordinates Control Overlay
+   ============================ */
 .coordinates-overlay {
   position: absolute;
   bottom: 20px;
@@ -119,17 +229,112 @@ html, body, #root {
   text-transform: uppercase;
 }
 
+/* ============================
+   MapBarRight Control Panel
+   ============================ */
+.map-bar-right {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  bottom: 0;
+  width: 48px; /* фиксированная ширина под иконки */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  overflow: visible;
+}
 
-/* client/src/components/MapContainer.tsx */
-.map-wrapper {
+.map-bar-right * {
+  pointer-events: auto;
+}
+
+.map-bar__search {
   position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  margin: 8px 0;
 }
 
-.map-container {
-  width: 100%;
-  height: 100%;
+.search-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.search-input {
+  position: absolute;
+  top: 0;
+  right: 48px;
+  width: 0;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  opacity: 0;
+  transition: width 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.map-bar__search:hover .search-input,
+.search-input:focus {
+  width: 240px;
+  opacity: 1;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 48px;
+  width: 240px;
+  max-height: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.search-suggestions li {
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.search-suggestions li:hover {
+  background: #f0f0f0;
+}
+
+.map-bar__center {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map-bar__button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.map-bar__button:hover {
+  background: rgba(255,255,255,1);
+}
+
+.map-bar__bottom {
+  width: 100%;
+  margin-bottom: 8px;
+}

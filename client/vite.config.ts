@@ -7,13 +7,27 @@ export default defineConfig({
     react(),
     svgr({
       svgrOptions: {
-        icon: true
-      }
-    })
+        icon: true,
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': '/src'
+      "@": "/src",
+    },
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/socket.io": {
+        target: "ws://localhost:5000",
+        ws: true
+      }
     }
   }
 });
+

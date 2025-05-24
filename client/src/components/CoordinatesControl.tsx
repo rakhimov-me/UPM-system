@@ -1,4 +1,3 @@
-// client/src/components/CoordinatesControl.tsx
 import React, { useContext, useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";

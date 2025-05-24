@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";
+import { MapBarRight } from "./MapBarRight";
 import "../index.css";
 
 interface Props {
@@ -35,6 +36,9 @@ export function MapContainer({ children }: Props) {
     <div className="map-wrapper">
       <div ref={containerRef} className="map-container" />
       <MapContext.Provider value={map}>
+        {/* Панель справа поверх карты */}
+        <MapBarRight />
+        {/* Остальные дочерние слои (ZonesLayer, TrackLayer, CoordinatesControl и т.д.) */}
         {children}
       </MapContext.Provider>
     </div>
