@@ -19,43 +19,129 @@ export function ProfileDrawer({
   onClose: () => void;
 }) {
   const [pilot, setPilot] = useState<Pilot | null>(null);
-  const [lastName, setLastName] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [middleName, setMiddleName] = useState("");
+  const [view, setView] = useState<"login" | "register" | "profile">("login");
 
+  // Registration fields
+  const [regLast, setRegLast] = useState("");
+  const [regFirst, setRegFirst] = useState("");
+  const [regMiddle, setRegMiddle] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+
+  // Login fields
+  const [loginId, setLoginId] = useState(""); // email or phone
+  const [loginPassword, setLoginPassword] = useState("");
+
+  // При открытии — пробуем узнать профиль
   useEffect(() => {
     if (!isOpen) return;
-    fetch("/api/pilots")
-      .then((r) => r.json())
-      .then((list: Pilot[]) => {
-        if (list.length) {
-          setPilot(list[0]);
-        }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setView("login");
+      setPilot(null);
+      return;
+    }
+    fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((user: Pilot) => {
+        setPilot(user);
+        setView("profile");
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        setPilot(null);
+        setView("login");
       });
   }, [isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setPilot(null);
+    setView("login");
+  };
+
+  // Registration handler
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/pilots", {
+    const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lastName, firstName, middleName }),
+      body: JSON.stringify({
+        lastName: regLast,
+        firstName: regFirst,
+        middleName: regMiddle,
+        email: regEmail,
+        phone: regPhone,
+        password: regPassword,
+      }),
     });
-    if (res.ok) {
-      const created = await res.json();
-      setPilot(created);
-    } else {
+    if (!res.ok) {
       alert("Ошибка регистрации");
+      return;
     }
+    // после регистрации — сразу логинимся
+    const loginRes = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: regEmail, password: regPassword }),
+    });
+    if (!loginRes.ok) {
+      alert("Регистрация прошла, но вход не удался");
+      return;
+    }
+    const { token } = await loginRes.json();
+    localStorage.setItem("token", token);
+    // подгружаем профиль
+    const me = await fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const user: Pilot = await me.json();
+    setPilot(user);
+    setView("profile");
+  };
+
+  // Login handler
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // сервер принимает только поле email, поэтому если введён телефон —
+        // отправляем как email. Можно потом доработать на backend.
+        email: loginId,
+        password: loginPassword,
+      }),
+    });
+    if (!res.ok) {
+      alert("Ошибка входа");
+      return;
+    }
+    const { token } = await res.json();
+    localStorage.setItem("token", token);
+    const me = await fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const user: Pilot = await me.json();
+    setPilot(user);
+    setView("profile");
   };
 
   return (
     <Drawer title="Профиль" isOpen={isOpen} onClose={onClose}>
-      {pilot ? (
-        <div className="space-y-2">
+      {view === "profile" && pilot && (
+        <div className="space-y-4">
           <p>
             <strong>ФИО:</strong>{" "}
-            {pilot.last_name} {pilot.first_name} {pilot.middle_name}
+            {pilot.last_name} {pilot.first_name}{" "}
+            {pilot.middle_name || ""}
           </p>
           {pilot.email && (
             <p>
@@ -67,33 +153,115 @@ export function ProfileDrawer({
               <strong>Телефон:</strong> {pilot.phone}
             </p>
           )}
+          <button
+            onClick={handleLogout}
+            className="mt-4 bg-gray-200 text-gray-800 px-4 py-2 rounded"
+          >
+            Выйти
+          </button>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <p>Заполните свои данные:</p>
+      )}
+
+      {view === "login" && !pilot && (
+        <form onSubmit={handleLogin} className="space-y-4">
+          <p>Вход в систему</p>
           <input
             className="w-full border p-2"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            value={loginId}
+            onChange={(e) => setLoginId(e.target.value)}
+            placeholder="Email или телефон"
+            required
+          />
+          <input
+            type="password"
+            className="w-full border p-2"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+            placeholder="Пароль"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Войти
+          </button>
+          <p className="text-sm text-center">
+            Нет аккаунта?{" "}
+            <button
+              type="button"
+              className="text-blue-600 underline"
+              onClick={() => setView("register")}
+            >
+              Регистрация
+            </button>
+          </p>
+        </form>
+      )}
+
+      {view === "register" && !pilot && (
+        <form onSubmit={handleRegister} className="space-y-4">
+          <p>Регистрация</p>
+          <input
+            className="w-full border p-2"
+            value={regLast}
+            onChange={(e) => setRegLast(e.target.value)}
             placeholder="Фамилия"
             required
           />
           <input
             className="w-full border p-2"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            value={regFirst}
+            onChange={(e) => setRegFirst(e.target.value)}
             placeholder="Имя"
             required
           />
           <input
             className="w-full border p-2"
-            value={middleName}
-            onChange={(e) => setMiddleName(e.target.value)}
+            value={regMiddle}
+            onChange={(e) => setRegMiddle(e.target.value)}
             placeholder="Отчество"
           />
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2">
-            Сохранить
+          <input
+            className="w-full border p-2"
+            value={regEmail}
+            onChange={(e) => setRegEmail(e.target.value)}
+            placeholder="Email"
+            type="email"
+            required
+          />
+          <input
+            className="w-full border p-2"
+            value={regPhone}
+            onChange={(e) => setRegPhone(e.target.value)}
+            placeholder="Телефон"
+            type="tel"
+            required
+          />
+          <input
+            type="password"
+            className="w-full border p-2"
+            value={regPassword}
+            onChange={(e) => setRegPassword(e.target.value)}
+            placeholder="Пароль"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            Зарегистрироваться
           </button>
+          <p className="text-sm text-center">
+            Уже есть аккаунт?{" "}
+            <button
+              type="button"
+              className="text-blue-600 underline"
+              onClick={() => setView("login")}
+            >
+              Войти
+            </button>
+          </p>
         </form>
       )}
     </Drawer>

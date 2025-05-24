@@ -4,24 +4,33 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { Drone } from "./Drone";
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Drone } from './Drone';
 
-@Entity({ name: "flight_request" })
+@Entity()
 export class FlightRequest {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => Drone, { nullable: false, onDelete: "CASCADE" })
-  @JoinColumn({ name: "drone_id" })
+  @ManyToOne(() => Drone, drone => drone.flightRequests, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'drone_id' })
   drone!: Drone;
 
-  @Column({ type: "jsonb" })
-  route!: any; // GeoJSON FeatureCollection
+  @Column({ type: 'jsonb' })
+  route!: any;
 
-  @Column({ type: "timestamp without time zone" })
-  scheduled_at!: Date;
+  // ← вот тут
+  @Column({ name: 'scheduled_at', type: 'timestamp' })
+  scheduledAt!: Date;
 
-  @Column({ type: "text", default: "pending" })
+  @Column({ default: 'pending' })
   status!: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
 }

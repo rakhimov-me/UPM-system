@@ -1,21 +1,45 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Pilot } from "./Pilot";
+// src/entities/Drone.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Pilot } from './Pilot';
+import { FlightRequest } from './FlightRequest';
 
-@Entity({ name: "drone" })
+@Entity()
 export class Drone {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "text" })
+  @Column()
   brand!: string;
 
-  @Column({ type: "text" })
+  @Column()
   model!: string;
 
-  @Column({ type: "text", unique: true })
+  @Column()
   serial_number!: string;
 
-  @ManyToOne(() => Pilot, pilot => pilot.drones, { nullable: false, onDelete: "CASCADE" })
-  @JoinColumn({ name: "pilot_id" })
+  @Column({ default: true })
+  is_active!: boolean;
+
+  @ManyToOne(() => Pilot, pilot => pilot.drones, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'pilot_id' })
   pilot!: Pilot;
+
+  // ← сюда добавляем связь «один Drone — много FlightRequest»
+  @OneToMany(() => FlightRequest, fr => fr.drone)
+  flightRequests!: FlightRequest[];
+
+  @CreateDateColumn({ name: 'created_at' })
+  created_at!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updated_at!: Date;
 }

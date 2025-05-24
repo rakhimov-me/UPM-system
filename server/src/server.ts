@@ -1,6 +1,6 @@
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { app } from './app';
+import app  from './app';
 import { AppDataSource } from './config/data-source';
 
 async function main() {
