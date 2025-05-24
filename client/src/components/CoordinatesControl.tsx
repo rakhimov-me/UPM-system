@@ -36,20 +36,22 @@ export function CoordinatesControl() {
   }, [map]);
 
   return (
-    <div
+   <div
       ref={ref}
       style={{
-        position: "absolute",
-        bottom: 10,
-        right: 10,
-        background: "rgba(0,0,0,0.5)",
-        color: "#fff",
-        padding: "4px 8px",
-        fontFamily: "monospace",
-        fontSize: 12,
-        borderRadius: 4,
-        pointerEvents: "none",
-      }}
+      position: "absolute",
+      bottom: 20,            
+      left: "50%",           
+      transform: "translateX(-50%)", 
+      background: "rgba(0,0,0,0.5)",
+      color: "#fff",
+      padding: "4px 8px",
+      fontFamily: "monospace",
+      fontSize: 12,
+      borderRadius: 4,
+      pointerEvents: "none",
+      whiteSpace: "nowrap",  
+    }}
     />
   );
 }

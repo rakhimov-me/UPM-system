@@ -31,13 +31,23 @@ export function MapContainer({ children }: Props) {
     };
   }, []);
 
-  return (
-    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
-      {/* контейнер самой карты */}
-      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
-
-      {/* провайдим инстанс карты всем children */}
-      <MapContext.Provider value={map}>{children}</MapContext.Provider>
+   return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",    // <-- вот эта строчка
+      }}
+    >
+      <div
+        ref={containerRef}
+        style={{ width: "100%", height: "100%" }}
+      />
+      <MapContext.Provider value={map}>
+        {children}
+      </MapContext.Provider>
     </div>
   );
 }
+ 
