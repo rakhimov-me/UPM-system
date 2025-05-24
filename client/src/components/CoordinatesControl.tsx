@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";
+import "./css/CoordinatesOverlay.css";
 
 function toDMS(deg: number, isLat: boolean) {
   const abs = Math.abs(deg);
@@ -13,19 +14,42 @@ function toDMS(deg: number, isLat: boolean) {
 
 export function CoordinatesControl() {
   const map = useContext(MapContext);
-  const ref = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 0, lng: 0 });
+  const [isDD, setIsDD] = useState(false);
 
   useEffect(() => {
-    if (!map || !ref.current) return;
+    if (!map) return;
     const update = () => {
       const c = map.getCenter();
-      // Связываем обе координаты и добавляем DMS один раз в конце
-      ref.current!.textContent = `${toDMS(c.lat, true)}   ${toDMS(c.lng, false)} DMS`;
+      setCoords({ lat: c.lat, lng: c.lng });
     };
     update();
     map.on("move", update);
     return () => void map.off("move", update);
   }, [map]);
 
-  return <div ref={ref} className="coordinates-overlay" />;
+  // Обработка клика по DMS/DD
+  const handleFormatClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDD((prev) => !prev);
+  };
+
+  return (
+    <div className="coordinates-overlay">
+      <span className="coordinates-overlay__value">
+        {isDD
+          ? `${coords.lat.toFixed(6)} ${coords.lng.toFixed(6)}`
+          : `${toDMS(coords.lat, true)} ${toDMS(coords.lng, false)}`}
+      </span>
+      <a
+        href="#"
+        className="coordinates-overlay__format"
+        tabIndex={0}
+        onClick={handleFormatClick}
+        title={isDD ? "Показать DMS" : "Показать DD"}
+      >
+        {isDD ? "DD" : "DMS"}
+      </a>
+    </div>
+  );
 }

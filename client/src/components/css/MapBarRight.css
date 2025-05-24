@@ -1,0 +1,163 @@
+:root {
+  --main-background-color: #292635;
+  --secondary-background-color: #3A3B55;
+  --sidebar-gray-color: #B9BDC0;
+  --accent-color: #098B9C;
+  --white-color: #FFFFFF;
+}
+
+/* === Контейнер панели справа === */
+.map-bar-right {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  bottom: 0;
+  width: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.map-bar-right * {
+  pointer-events: auto;
+}
+
+/* === Поисковый блок (вверху) === */
+.map-bar__search {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* Кнопка поиска */
+.search-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: var(--main-background-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 2;
+}
+.search-button img {
+  width: 22px;
+  height: 22px;
+}
+
+/* Поле поиска */
+.search-input {
+  position: absolute;
+  top: 0;
+  right: 48px;        /* 40px кнопка + 8px отступ */
+  width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--secondary-background-color);
+  border-radius: 4px;
+  background: var(--secondary-background-color);
+  color: var(--white-color);
+  font-size: 15px;
+  font-family: "Inter", sans-serif;
+  opacity: 0;
+  white-space: nowrap;
+  outline: none;
+  box-sizing: border-box;
+  transition: width 0.2s, opacity 0.2s;
+}
+
+.map-bar__search:hover .search-input,
+.search-input:focus {
+  width: 240px;
+  opacity: 1;
+}
+
+/* Подсказки поиска */
+.search-suggestions {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 48px;
+  width: 240px;
+  max-height: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--main-background-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 0 0 4px 4px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px #0002;
+}
+.map-bar__search:hover .search-suggestions,
+.search-input:focus + .search-suggestions {
+  display: block;
+}
+.search-suggestions li {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--sidebar-gray-color);
+  font-size: 15px;
+  white-space: normal;
+  transition: background 0.15s, color 0.15s;
+}
+.search-suggestions li:hover {
+  background: var(--accent-color);
+  color: var(--white-color);
+}
+
+/* === Центр панели (кнопки) === */
+/* Центр панели */
+.map-bar__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Кнопки */
+.map-bar__button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: var(--main-background-color);
+  color: var(--white-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+/* При наведении на любую кнопку — все становятся полностью видимыми */
+.map-bar__center:hover .map-bar__button {
+  opacity: 1;
+}
+
+/* Наведённая кнопка получает акцентный цвет */
+.map-bar__button:hover,
+.map-bar__button:focus-visible {
+  color: var(--accent-color);
+}
+
+
+/* === Нижний блок панели === */
+.map-bar__bottom {
+  margin-bottom: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+}

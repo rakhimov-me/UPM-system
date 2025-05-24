@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import { MapContext } from "./MapContext";
 import { MapBarRight } from "./MapBarRight";
-import "../index.css";
+import "./css/MapContainer.css";
 
 interface Props {
   children?: React.ReactNode;

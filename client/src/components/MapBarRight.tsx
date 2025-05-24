@@ -1,6 +1,8 @@
 // src/MapBarRight.tsx
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { MapContext } from "./MapContext";
+import "./css/MapBarRight.css";
+import SearchIcon from "../assets/search_icon.svg"; 
 
 interface IconButtonProps {
   onClick?: () => void;
@@ -124,11 +126,18 @@ export function MapBarRight() {
     <div className="map-bar-right">
       {/* Поиск */}
       <div className="map-bar__search" ref={searchContainerRef}>
-        <button className="search-button" title="Поиск">
-          🔍
+        <button
+          className="search-button"
+          title="Поиск"
+          tabIndex={-1}
+          type="button"
+          onClick={() => document.getElementById("mapbar-search-input")?.focus()}
+        >
+          <img src={SearchIcon} alt="Поиск" />
         </button>
         <input
           className="search-input"
+          id="mapbar-search-input"
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -138,6 +147,7 @@ export function MapBarRight() {
               selectSuggestion(suggestions[0]);
             }
           }}
+          autoComplete="off"
         />
         {suggestions.length > 0 && (
           <ul className="search-suggestions">
@@ -149,6 +159,11 @@ export function MapBarRight() {
           </ul>
         )}
       </div>
+
+
+
+
+
 
       {/* Кнопки управления */}
       <div className="map-bar__center">
