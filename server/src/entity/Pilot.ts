@@ -1,37 +1,37 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  CreateDateColumn,
-} from "typeorm";
-import { Drone } from "./Drone";
+  Entity, PrimaryGeneratedColumn, Column,
+  CreateDateColumn, UpdateDateColumn
+} from 'typeorm';
 
-@Entity({ name: "pilot" })
+@Entity()
 export class Pilot {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number;            
 
-  @Column({ type: "text", name: "last_name" })
+  @Column()
   last_name!: string;
 
-  @Column({ type: "text", name: "first_name" })
+  @Column()
   first_name!: string;
 
-  @Column({ type: "text", name: "middle_name", nullable: true })
-  middle_name?: string;
+  @Column({ nullable: true })
+  middle_name?: string;   
 
-  @Column({ type: "text", nullable: true })
-  email?: string;
+  @Column({ unique: true })
+  email!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ unique: true, nullable: true })
   phone?: string;
 
-  @CreateDateColumn({ name: "created_at" })
+  @Column()
+  password_hash!: string;
+
+  @Column({ default: true })
+  is_active!: boolean;
+
+  @CreateDateColumn()
   created_at!: Date;
 
-  // связь «один пилот — много дронов»
-  @OneToMany(() => Drone, (drone) => drone.pilot)
-  drones!: Drone[];
+  @UpdateDateColumn()
+  updated_at!: Date;
 }
-    
