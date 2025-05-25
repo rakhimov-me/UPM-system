@@ -1,24 +1,31 @@
-import express from 'express'
-import cors from 'cors'
+import express from 'express';
+import cors from 'cors';
 
-import authRouter from './routes/auth.route'
-import pilotRouter from './routes/pilot.route'
-import droneRouter from './routes/drone.route'
-import zoneRouter from './routes/zone.route'
-import flightRequestRouter from './routes/flight-request.route'
+import authRouter          from './routes/auth.route';
+import pilotRouter         from './routes/pilot.route';
+import droneRouter         from './routes/drone.route';
+import zoneRouter          from './routes/zone.route';
+import flightRequestRouter from './routes/flight-request.route';
+import { errorHandler }    from './middleware/error-handler';
 
-import { errorHandler } from './middleware/error-handler'
+const app = express();
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+app.use(
+  cors({
+    origin: 'http://localhost:5173', 
+    credentials: true,               
+  })
+);
 
-app.use('/api/auth', authRouter)
-app.use('/api/pilots', pilotRouter)
-app.use('/api/drones', droneRouter)
-app.use('/api/zones', zoneRouter)
-app.use('/api/flight-requests', flightRequestRouter)
+app.use(express.json());
 
-app.use(errorHandler)
 
-export default app
+app.use('/api/auth',            authRouter);
+app.use('/api/pilots',          pilotRouter);
+app.use('/api/drones',          droneRouter);
+app.use('/api/zones',           zoneRouter);
+app.use('/api/flight-requests', flightRequestRouter);
+
+app.use(errorHandler);
+
+export default app;

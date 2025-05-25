@@ -16,18 +16,18 @@ export default defineConfig({
       "@": "/src",
     },
   },
-  server: {
+server: {
     proxy: {
-      "/api": {
-        target: "http://localhost:5000",
+      '/api': {
+        target: 'http://localhost:5000', 
         changeOrigin: true,
-        secure: false,
       },
-      "/socket.io": {
-        target: "ws://localhost:5000",
-        ws: true
-      }
-    }
-  }
+      '/socket.io': {
+        target: 'ws://localhost:5000',
+        ws: true,
+      },
+    },
+  },
 });
+
 

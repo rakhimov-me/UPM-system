@@ -17,5 +17,5 @@
   },
   "include": [
     "src/**/*.ts"                  // сюда попадут и tests/, и сам app.ts
-  ]
+, "src/setupEnv.ts"  ]
 }

@@ -3,27 +3,33 @@ import { AppDataSource } from '../config/data-source';
 import { Zone } from '../entities/Zone';
 
 export class ZoneController {
-  // 1. Получить все зоны
-  static async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+  private static zoneRepo = AppDataSource.getRepository(Zone);
+
+  /** GET /api/zones */
+  static async list(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const zones = await AppDataSource
-        .getRepository(Zone)
-        .find({ order: { id: 'ASC' } });
+      const zones = await ZoneController.zoneRepo.find();
       res.json(zones);
     } catch (err) {
       next(err);
     }
   }
 
-  // 2. Получить зону по id
-  static async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  /** GET /api/zones/:id */
+  static async getById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const id = Number(req.params.id);
-      const zone = await AppDataSource
-        .getRepository(Zone)
-        .findOneBy({ id });
+      const zone = await ZoneController.zoneRepo.findOneBy({ id });
       if (!zone) {
-        res.status(404).json({ error: 'Zone not found' });
+        res.status(404).json({ error: 'Зона не найдена' });
         return;
       }
       res.json(zone);
@@ -32,31 +38,37 @@ export class ZoneController {
     }
   }
 
-  // 3. Создать новую зону
-  static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { name, geom } = req.body;
-    if (!name || !geom) {
-      res.status(400).json({ error: 'name и geom обязательны' });
-      return;
-    }
-
+  /** POST /api/zones */
+  static async create(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const repo = AppDataSource.getRepository(Zone);
-      const zone = repo.create({ name, geom });
-      await repo.save(zone);
+      const { name, geom } = req.body;
+      if (!name || !geom) {
+        res.status(400).json({ error: 'name и geom обязательны' });
+        return;
+      }
+      const zone = ZoneController.zoneRepo.create({ name, geom });
+      await ZoneController.zoneRepo.save(zone);
       res.status(201).json(zone);
     } catch (err) {
       next(err);
     }
   }
 
-  // 4. Удалить зону
-  static async remove(req: Request, res: Response, next: NextFunction): Promise<void> {
+  /** DELETE /api/zones/:id */
+  static async remove(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const id = Number(req.params.id);
-      const result = await AppDataSource.getRepository(Zone).delete(id);
+      const result = await ZoneController.zoneRepo.delete(id);
       if (result.affected === 0) {
-        res.status(404).json({ error: 'Zone not found' });
+        res.status(404).json({ error: 'Зона не найдена' });
         return;
       }
       res.sendStatus(204);

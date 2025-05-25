@@ -1,6 +1,6 @@
-// src/components/ProfileDrawer.tsx
 import { useState, useEffect } from "react";
 import { Drawer } from "./Drawer";
+import { registerPilot, loginPilot, getProfile } from "../api/auth";
 
 interface Pilot {
   id: number;
@@ -11,6 +11,8 @@ interface Pilot {
   phone?: string;
 }
 
+type View = "login" | "register" | "profile";
+
 export function ProfileDrawer({
   isOpen,
   onClose,
@@ -19,7 +21,7 @@ export function ProfileDrawer({
   onClose: () => void;
 }) {
   const [pilot, setPilot] = useState<Pilot | null>(null);
-  const [view, setView] = useState<"login" | "register" | "profile">("login");
+  const [view, setView] = useState<View>("login");
 
   // Registration fields
   const [regLast, setRegLast] = useState("");
@@ -33,114 +35,75 @@ export function ProfileDrawer({
   const [loginId, setLoginId] = useState(""); // email or phone
   const [loginPassword, setLoginPassword] = useState("");
 
-  // При открытии — пробуем узнать профиль
+  // ------------------------------------------------------------------
+  // Helpers
+  const loadProfile = async () => {
+    try {
+      const user: Pilot = await getProfile();
+      setPilot(user);
+      setView("profile");
+    } catch {
+      localStorage.removeItem("token");
+      setPilot(null);
+      setView("login");
+    }
+  };
+
+  // Load profile if drawer opens and есть token
   useEffect(() => {
     if (!isOpen) return;
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (localStorage.getItem("token")) {
+      loadProfile();
+    } else {
       setView("login");
       setPilot(null);
-      return;
     }
-    fetch("/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((user: Pilot) => {
-        setPilot(user);
-        setView("profile");
-      })
-      .catch(() => {
-        localStorage.removeItem("token");
-        setPilot(null);
-        setView("login");
-      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Logout
+  // ------------------------------------------------------------------
   const handleLogout = () => {
     localStorage.removeItem("token");
     setPilot(null);
     setView("login");
   };
 
-  // Registration handler
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const { token } = await registerPilot({
         lastName: regLast,
         firstName: regFirst,
         middleName: regMiddle,
         email: regEmail,
         phone: regPhone,
         password: regPassword,
-      }),
-    });
-    if (!res.ok) {
+      });
+      localStorage.setItem("token", token);
+      await loadProfile();
+    } catch {
       alert("Ошибка регистрации");
-      return;
     }
-    // после регистрации — сразу логинимся
-    const loginRes = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: regEmail, password: regPassword }),
-    });
-    if (!loginRes.ok) {
-      alert("Регистрация прошла, но вход не удался");
-      return;
-    }
-    const { token } = await loginRes.json();
-    localStorage.setItem("token", token);
-    // подгружаем профиль
-    const me = await fetch("/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const user: Pilot = await me.json();
-    setPilot(user);
-    setView("profile");
   };
 
-  // Login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        // сервер принимает только поле email, поэтому если введён телефон —
-        // отправляем как email. Можно потом доработать на backend.
-        email: loginId,
-        password: loginPassword,
-      }),
-    });
-    if (!res.ok) {
+    try {
+      const { token } = await loginPilot(loginId, loginPassword);
+      localStorage.setItem("token", token);
+      await loadProfile();
+    } catch {
       alert("Ошибка входа");
-      return;
     }
-    const { token } = await res.json();
-    localStorage.setItem("token", token);
-    const me = await fetch("/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const user: Pilot = await me.json();
-    setPilot(user);
-    setView("profile");
   };
 
+  // ------------------------------------------------------------------
   return (
     <Drawer title="Профиль" isOpen={isOpen} onClose={onClose}>
       {view === "profile" && pilot && (
         <div className="space-y-4">
           <p>
-            <strong>ФИО:</strong>{" "}
-            {pilot.last_name} {pilot.first_name}{" "}
+            <strong>ФИО:</strong> {pilot.last_name} {pilot.first_name}{" "}
             {pilot.middle_name || ""}
           </p>
           {pilot.email && (
@@ -180,10 +143,7 @@ export function ProfileDrawer({
             placeholder="Пароль"
             required
           />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
             Войти
           </button>
           <p className="text-sm text-center">
@@ -246,10 +206,7 @@ export function ProfileDrawer({
             placeholder="Пароль"
             required
           />
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
+          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
             Зарегистрироваться
           </button>
           <p className="text-sm text-center">

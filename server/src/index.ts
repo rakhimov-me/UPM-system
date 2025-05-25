@@ -1,25 +1,17 @@
-// src/index.ts
-import dotenv from "dotenv";
-import http from "http";
-import { Server as SocketIOServer } from "socket.io";
-import app from "./app";
-import { AppDataSource } from "./config/db";
+import 'dotenv/config';         
+import http                   from 'http';
+import { Server as IO }       from 'socket.io';
+import app                    from './app';
+import { AppDataSource }      from './config/data-source';
 
-dotenv.config();
-
-async function bootstrap() {
+(async () => {
   await AppDataSource.initialize();
-  console.log("DB initialized");
+  console.log('DB initialized');
 
   const server = http.createServer(app);
-  const io     = new SocketIOServer(server, { cors: { origin: "*" } });
-  io.on("connection", socket => console.log("WS connected:", socket.id));
+  const io = new IO(server, { cors: { origin: '*' } });
+  io.on('connection', s => console.log('WS connected:', s.id));
 
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 5000;
   server.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`));
-}
-
-bootstrap().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+})();
