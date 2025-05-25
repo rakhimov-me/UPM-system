@@ -4,12 +4,21 @@ import { Drone } from '../entities/Drone';
 import { Pilot } from '../entities/Pilot';
 
 export class DroneController {
-  static async list(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const drones = await AppDataSource
-      .getRepository(Drone)
-      .find({ relations: ['pilot'], order: { id: 'ASC' } });
+  static async list(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = (req as any).userId as number;  // authMiddleware уже положил
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const drones = await AppDataSource.getRepository(Drone).find({
+      where: { pilot: { id: userId } },  // ← ключевая строка
+      order:  { id: 'ASC' },
+    });
+
     res.json(drones);
+  } catch (err) {
+    next(err);
   }
+}
 
   static async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     const id = Number(req.params.id);
@@ -23,22 +32,26 @@ export class DroneController {
     res.json(drone);
   }
 
-  static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { brand, model, serial_number, pilotId } = req.body;
-    if (!brand || !model || !serial_number || pilotId == null) {
-      res.status(400).json({ error: 'brand, model, serial_number и pilotId обязательны' });
-      return;
+static async create(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { brand, model, serial_number } = req.body;
+    if (!brand || !model || !serial_number) {
+      return res.status(400).json({ error: 'brand, model, serial_number обязательны' });
     }
-    const pilot = await AppDataSource.getRepository(Pilot).findOneBy({ id: +pilotId });
-    if (!pilot) {
-      res.status(404).json({ error: 'Pilot not found' });
-      return;
-    }
-    const repo = AppDataSource.getRepository(Drone);
+
+    const userId = (req as any).userId as number;
+    const pilot  = await AppDataSource.getRepository(Pilot).findOneBy({ id: userId });
+    if (!pilot) return res.status(404).json({ error: 'Pilot not found' });
+
+    const repo  = AppDataSource.getRepository(Drone);
     const drone = repo.create({ brand, model, serial_number, pilot });
     await repo.save(drone);
+
     res.status(201).json(drone);
+  } catch (err) {
+    next(err);
   }
+}
 
   static async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     const id = Number(req.params.id);
