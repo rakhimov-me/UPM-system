@@ -1,6 +1,7 @@
 // src/components/DronesDrawer.tsx
 import { useState, useEffect } from "react";
 import { Drawer } from "./Drawer";
+import { listDrones, createDrone, DroneInput } from '../api/drones';
 
 interface Drone {
   id: number;
@@ -21,31 +22,23 @@ export function DronesDrawer({
   const [model, setModel] = useState("");
   const [serial, setSerial] = useState("");
 
-  useEffect(() => {
-    if (!isOpen) return;
-    fetch("/api/drones")
-      .then((r) => r.json())
-      .then((data: Drone[]) => setDrones(data));
-  }, [isOpen]);
+ useEffect(() => {
+  if (!isOpen) return;
+  listDrones().then(setDrones).catch(() => setDrones([]));
+}, [isOpen]);
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await fetch("/api/drones", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brand, model, serial_number: serial, pilotId: 1 }),
-    });
-    if (res.ok) {
-      setBrand("");
-      setModel("");
-      setSerial("");
-      // перезагрузим список
-      const updated = await fetch("/api/drones").then((r) => r.json());
-      setDrones(updated);
-    } else {
-      alert("Ошибка добавления дрона");
-    }
-  };
+const handleAdd = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const data: DroneInput = { brand, model, serial_number: serial };
+  try {
+    await createDrone(data);
+    setBrand(''); setModel(''); setSerial('');
+    const updated = await listDrones();
+    setDrones(updated);
+  } catch {
+    alert('Ошибка добавления дрона');
+  }
+};
 
   return (
     <Drawer title="Мои дроны" isOpen={isOpen} onClose={onClose}>
