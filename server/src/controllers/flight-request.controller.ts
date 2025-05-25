@@ -8,24 +8,24 @@ const droneRepo = () => AppDataSource.getRepository(Drone);
 
 export class FlightRequestController {
   /** GET /api/flight-requests */
-  static async list(req: Request, res: Response, next: NextFunction) {
-    try {
-      const uid = (req as any).userId as number | undefined;
+ static async list(req: Request, res: Response, next: NextFunction) {
+  try {
+    const uid = (req as any).userId as number | undefined;
+    if (!uid) return res.status(401).json({ error: "Auth required" });
 
-      const qb = repo()
-        .createQueryBuilder("fr")
-        .leftJoinAndSelect("fr.drone", "d")
-        .leftJoinAndSelect("d.pilot", "p")        // ← чтобы был p.id
+    const list = await repo()
+      .createQueryBuilder("fr")
+      .leftJoinAndSelect("fr.drone", "d")
+      .where("d.pilot_id = :uid", { uid })     // ← СТРОГО свои дроны
+      .orderBy("fr.created_at", "DESC")
+      .getMany();
 
-      if (uid) qb.where("p.id = :uid", { uid });  // фильтр только при uid
-
-      const list = await qb.orderBy("fr.created_at", "DESC").getMany();
-      res.json(list);
-    } catch (err) {
-      console.error(err);
-      next(err);
-    }
-  }  
+    res.json(list);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+}
 
   /** GET /api/flight-requests/:id */
   static async getById(req: Request, res: Response, next: NextFunction) {

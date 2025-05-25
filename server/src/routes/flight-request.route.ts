@@ -1,18 +1,16 @@
-import { Router } from 'express'
-import { wrap } from '../utils/wrap'
-import { FlightRequestController } from '../controllers/flight-request.controller'
+import { Router } from "express";
+import { wrap } from "../utils/wrap";
+import { authMiddleware } from "../middleware/auth";
+import { FlightRequestController as C } from "../controllers/flight-request.controller";
 
-const router = Router()
+const router = Router();
 
-// GET  /api/flight-requests       — все заявки
-router.get('/', wrap(FlightRequestController.list))
-// POST /api/flight-requests       — создать новую заявку
-router.post('/', wrap(FlightRequestController.create))
-// GET  /api/flight-requests/:id   — одна заявка по ID
-router.get('/:id', wrap(FlightRequestController.getById))
-// PATCH/PUT /api/flight-requests/:id — обновить статус/дату
-router.patch('/:id', wrap(FlightRequestController.update))
-// DELETE /api/flight-requests/:id — удалить заявку
-router.delete('/:id', wrap(FlightRequestController.remove))
+router.use(authMiddleware);          // ⬅ все ниже требуют JWT
 
-export default router
+router.get   ("/",      wrap(C.list));
+router.post  ("/",      wrap(C.create));
+router.get   ("/:id",   wrap(C.getById));
+router.patch ("/:id",   wrap(C.update));
+router.delete("/:id",   wrap(C.remove));
+
+export default router;
